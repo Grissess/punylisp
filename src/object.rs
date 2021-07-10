@@ -32,13 +32,10 @@ macro_rules! pair {
 macro_rules! declare_type_test {
     (@declare $name:ident, $match:pat, $default:expr) => {
         pub fn $name(obj: &Obj) -> bool {
-            if let Some(o) = obj {
-                match o.as_ref() {
-                    Some($match) => true,
-                    _ => false,
-                }
-            } else {
-                $default
+            match obj.as_deref() {
+                Some($match) => true,
+                None => $default,
+                _ => false,
             }
         }
     };
@@ -52,7 +49,7 @@ macro_rules! declare_type_test {
 
 declare_type_test!(is_int, Object::Int(_));
 declare_type_test!(is_sym, Object::Sym(_));
-declare_type_test!(is_pair, Object::Pair(_, _), true);
+declare_type_test!(is_pair, Object::Pair(_, _), true); // None is the empty list
 declare_type_test!(is_func, Object::Func(_));
 declare_type_test!(is_cont, Object::Cont(_));
 
@@ -112,24 +109,16 @@ pub fn list_reverse(interp: &mut Interp, obj: &Obj, improper: bool) -> Obj {
 
 // TODO: is &None static?
 pub fn first(obj: &Obj) -> &Obj {
-    if let Some(o) = obj {
-        if let Some(Object::Pair(f, _)) = o.as_ref() {
-            f
-        } else {
-            &None
-        }
+    if let Some(Object::Pair(f, _)) = obj.as_deref() {
+        f
     } else {
         &None
     }
 }
 
 pub fn next(obj: &Obj) -> &Obj {
-    if let Some(o) = obj {
-        if let Some(Object::Pair(_, n)) = o.as_ref() {
-            n
-        } else {
-            &None
-        }
+    if let Some(Object::Pair(_, n)) = obj.as_deref() {
+        n
     } else {
         &None
     }

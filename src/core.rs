@@ -110,11 +110,11 @@ impl Interp {
 
     pub fn pop_value(&mut self) -> Obj {
         let popped = self.state.values.clone();
-        self.state.values = self.state.values.as_ref().and_then(|o| match o.as_ref() {
-            Some(Object::Pair(_, next)) => next.clone(),
-            Some(_) => Some(o.clone()),
-            None => unreachable!(),
-        });
+        match self.state.values.as_deref() {
+            Some(Object::Pair(_, next)) => self.state.values = next.clone(),
+            Some(_) => (),
+            None => panic!("Pop from empty stack"),
+        };
         popped
     }
 
