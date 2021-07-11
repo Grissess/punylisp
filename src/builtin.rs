@@ -68,7 +68,7 @@ macro_rules! builtin {
 macro_rules! ret {
     ($interp:expr, $expr:expr) => {
         let expr = $expr;  // Split borrow, since expr will likely mut interp
-        $crate::Interp::push_value($interp, expr);
+        $crate::Interp::push_value($interp, expr, $crate::core::Value::Direct);
         return;
     };
     ($interp:expr) => {
